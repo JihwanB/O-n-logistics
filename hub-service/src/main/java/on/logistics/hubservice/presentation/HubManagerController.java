@@ -1,5 +1,6 @@
 package on.logistics.hubservice.presentation;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,10 @@ public class HubManagerController {
 
     @PostMapping
     public ResponseEntity<CommonResponse<CreateHubManagerResponse>> createHubManager(
-        @RequestBody @Valid CreateHubManagerRequest createHubManagerRequest) {
-        final var requestDto = CreateHubManagerRequestDto.of(createHubManagerRequest);
+        @RequestBody @Valid CreateHubManagerRequest createHubManagerRequest,
+        HttpServletRequest passportRequest) {
+        final var requestDto = CreateHubManagerRequestDto.of(createHubManagerRequest,
+            passportRequest);
         final var responseDto = hubManagerService.createHubManager(requestDto);
         return ResponseEntity.ok(CommonResponse.success(responseDto));
     }

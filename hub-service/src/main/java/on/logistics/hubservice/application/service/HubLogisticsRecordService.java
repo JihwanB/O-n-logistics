@@ -31,7 +31,7 @@ public class HubLogisticsRecordService {
     @Transactional
     public void storage(StorageLogisticsRequestDto requestDto) {
         validateHubExists(requestDto.hubId());
-        // TODO: deliveryId가 실제로 존재하는지 확인 필요
+
         List<HubLogisticsRecord> records = new ArrayList<>();
         requestDto.storageLogisticsIds().forEach(id -> {
             final var record = HubLogisticsRecord.storage(requestDto.hubId(), id);
