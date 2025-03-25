@@ -21,7 +21,6 @@ import on.logistics.deliveryservice.global.application.dtos.PageDto;
 import on.logistics.deliveryservice.global.domain.Passport;
 import on.logistics.deliveryservice.global.enums.AuthRole;
 import on.logistics.deliveryservice.global.utils.PassportUtil;
-import on.logistics.deliveryservice.infrastructure.clients.exception.ExternalApiException;
 import on.logistics.deliveryservice.infrastructure.clients.hub.HubServiceClient;
 import on.logistics.deliveryservice.infrastructure.clients.hub.feign.dtos.GetHubInfo;
 import on.logistics.deliveryservice.infrastructure.clients.hub.feign.dtos.GetHubManagerBooleanResponse;
@@ -65,14 +64,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     public CreateDeliveryResponse createDelivery(CreateDeliveryRequestDto requestDto) {
         Passport passport = getPassport(requestDto.httpServletRequest());
-        if (!passport.getRole().equals(AuthRole.MASTER.name())) {
-            throw new DeliveryException(DeliveryExceptionCode.DELIVERY_ACCESS_DENIED);
-        }
+        validNotMaster(passport);
 
-        GetHubInfo startHubInfo = hubServiceClient.getHubInfo(requestDto.startHubId());
-        if (startHubInfo == null) {
-            throw new DeliveryException(DeliveryExceptionCode.DELIVERY_START_HUB_NOT_FOUND);
-        }
+        startHubGetOrThrow(requestDto.startHubId());
 
         DeliveryHubInfoDto hubInfo = deliveryHubInfo(requestDto.destination());
         DeliveryUserInfoDto userInfo = deliveryUserInfo(passport);
@@ -82,15 +76,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         return CreateDeliveryResponse.of(saved.getId());
     }
 
-    // 권한 해제 임시 분리
     @Transactional
     public CreateDeliveryResponse createApiDelivery(CreateDeliveryRequestDto requestDto) {
         Passport passport = getPassport(requestDto.httpServletRequest());
 
-        GetHubInfo startHubInfo = hubServiceClient.getHubInfo(requestDto.startHubId());
-        if (startHubInfo == null) {
-            throw new DeliveryException(DeliveryExceptionCode.DELIVERY_START_HUB_NOT_FOUND);
-        }
+        startHubGetOrThrow(requestDto.startHubId());
 
         DeliveryHubInfoDto hubInfo = deliveryHubInfo(requestDto.destination());
         DeliveryUserInfoDto userInfo = deliveryUserInfo(passport);
@@ -342,6 +332,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+    private void validNotMaster(Passport passport) {
+        if (!passport.getRole().equals(AuthRole.MASTER.name())) {
+            throw new DeliveryException(DeliveryExceptionCode.DELIVERY_ACCESS_DENIED);
+        }
+    }
+
     private void validHubManagerHubAndDeliveryManager(Passport passport, Delivery delivery) {
         validHubManagerHub(passport, delivery);
         validDeliveryManager(passport, delivery);
@@ -364,6 +360,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                 endHubManager.isExist())) {
                 throw new DeliveryException(DeliveryExceptionCode.DELIVERY_ACCESS_DENIED);
             }
+        }
+    }
+
+    private void startHubGetOrThrow(UUID startHubId) {
+        GetHubInfo startHubInfo = hubServiceClient.getHubInfo(startHubId);
+        if (startHubInfo == null) {
+            throw new DeliveryException(DeliveryExceptionCode.DELIVERY_START_HUB_NOT_FOUND);
         }
     }
 

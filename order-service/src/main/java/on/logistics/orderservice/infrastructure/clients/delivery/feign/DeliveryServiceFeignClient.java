@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "delivery-service")
 public interface DeliveryServiceFeignClient {
 
-    @PostMapping("/api/v1/delivery")
+    @PostMapping("/api/v1/delivery/endpoint")
     Response deliveryRequest(@RequestBody DeliveryRequest request);
 }
