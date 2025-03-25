@@ -60,7 +60,7 @@ public class HubTransitServiceImpl implements HubTransitService {
         Optional<HubTransit> existingTransit = hubTransitRepository
             .findByDeliveryId(requestDto.deliveryId());
         if (existingTransit.isPresent()) {
-            log.info("이미 존재하는 허브 이동정보로 인해 추가적으로 생성하지 않고 기존 레코드 반환, deliveryId: {}",
+            log.info("이미 존재하는 허브 이동정보로 인해 추가적인 생성 없이 기존 레코드를 반환합니다, deliveryId: {}",
                 requestDto.deliveryId());
             return CreateHubTransitResponseDto.from(existingTransit.get());
         }
@@ -109,15 +109,6 @@ public class HubTransitServiceImpl implements HubTransitService {
     ) {
         log.info("허브 입고 요청, deliveryId: {}, currentHubId: {}", requestDto.deliveryId(),
             requestDto.currentHubId());
-
-        Optional<HubTransit> existingTransit = hubTransitRepository
-            .findByDeliveryIdAndNextHubId(requestDto.deliveryId(), requestDto.currentHubId());
-        if (existingTransit.isPresent()) {
-            log.info("이미 처리된 허브 입고 요청, deliveryId: {}, currentHubId: {}",
-                requestDto.deliveryId(), requestDto.currentHubId()
-            );
-            return;
-        }
 
         HubTransit currentTransit = hubTransitRepository
             .findByDeliveryIdAndNextHubId(requestDto.deliveryId(), requestDto.currentHubId())
