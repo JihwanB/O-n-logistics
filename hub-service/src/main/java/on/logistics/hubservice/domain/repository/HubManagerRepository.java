@@ -13,4 +13,6 @@ public interface HubManagerRepository {
     Optional<HubManager> findByUserIdAndHubId(UUID userId, UUID hubId);
 
     Optional<HubManager> findByHubId(UUID hubId);
+
+    Optional<HubManager> findByUserId(UUID userId);
 }

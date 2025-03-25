@@ -27,4 +27,9 @@ public class HubManagerRepositoryImpl implements HubManagerRepository {
     public Optional<HubManager> findByHubId(UUID hubId) {
         return hubManagerJpaRepository.findByHubId(hubId);
     }
+
+    @Override
+    public Optional<HubManager> findByUserId(UUID userId) {
+        return hubManagerJpaRepository.findByUserId(userId);
+    }
 }

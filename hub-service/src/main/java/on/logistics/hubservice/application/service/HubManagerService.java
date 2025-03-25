@@ -10,11 +10,14 @@ import on.logistics.hubservice.domain.entity.HubManager;
 import on.logistics.hubservice.domain.repository.HubManagerRepository;
 import on.logistics.hubservice.exception.HubException;
 import on.logistics.hubservice.exception.HubExceptionCode;
+import on.logistics.hubservice.exception.HubManagerException;
 import on.logistics.hubservice.exception.HubManagerException.HubManagerNotFoundException;
+import on.logistics.hubservice.exception.HubManagerExceptionCode;
 import on.logistics.hubservice.global.domain.Passport;
 import on.logistics.hubservice.global.enums.AuthRole;
 import on.logistics.hubservice.global.util.PassportUtil;
 import on.logistics.hubservice.presentation.dtos.response.CreateHubManagerResponse;
+import on.logistics.hubservice.presentation.dtos.response.GetHubIdByUserIdResponseDto;
 import on.logistics.hubservice.presentation.dtos.response.ValidHubManagerResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,10 +47,19 @@ public class HubManagerService {
         return ValidHubManagerResponse.of(isExistHubManager);
     }
 
+    @Transactional
     public GetHubManagerIdResponseDto getHubManagerId(UUID hubId) {
         HubManager hubManager = hubManagerRepository.findByHubId(hubId)
             .orElseThrow(HubManagerNotFoundException::new);
         return new GetHubManagerIdResponseDto(hubManager.getUserId());
+    }
+
+    @Transactional
+    public GetHubIdByUserIdResponseDto getHubIdByUserId(UUID userId) {
+        HubManager hubManager = hubManagerRepository.findByUserId(userId)
+            .orElseThrow(
+                () -> new HubManagerException(HubManagerExceptionCode.HUB_MANAGER_NOT_FOUND));
+        return GetHubIdByUserIdResponseDto.of(hubManager.getHubId());
     }
 
     private Passport getPassport(HttpServletRequest passportRequest) {

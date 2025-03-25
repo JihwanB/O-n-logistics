@@ -7,15 +7,17 @@ import static on.logistics.deliverymanagerservice.domain.entity.QUserSummary.use
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import on.logistics.deliverymanagerservice.application.dtos.SearchDeliveryManagerRequestDto;
 import on.logistics.deliverymanagerservice.domain.entity.DeliveryManager;
 import on.logistics.deliverymanagerservice.domain.entity.DeliveryType;
+import on.logistics.deliverymanagerservice.domain.entity.dtos.SearchDeliveryManagerDto;
 import on.logistics.deliverymanagerservice.global.application.dtos.PageDto;
+import on.logistics.deliverymanagerservice.global.enums.AuthRole;
 import on.logistics.deliverymanagerservice.global.enums.PageSortBy;
 import on.logistics.deliverymanagerservice.presentation.dtos.response.QSearchDeliveryManagerResponse;
 import on.logistics.deliverymanagerservice.presentation.dtos.response.SearchDeliveryManagerResponse;
@@ -88,7 +90,7 @@ public class DeliveryManagerRepositoryCustomImpl implements DeliveryManagerRepos
 
     @Override
     public PageDto<SearchDeliveryManagerResponse> searchDeliveryManager(
-        SearchDeliveryManagerRequestDto requestDto) {
+        SearchDeliveryManagerDto requestDto) {
         List<SearchDeliveryManagerResponse> content = getDeliveryManagers(requestDto);
         boolean last = true;
         long totalElement = getTotalElement(requestDto);
@@ -98,7 +100,7 @@ public class DeliveryManagerRepositoryCustomImpl implements DeliveryManagerRepos
     }
 
     private List<SearchDeliveryManagerResponse> getDeliveryManagers(
-        SearchDeliveryManagerRequestDto requestDto) {
+        SearchDeliveryManagerDto requestDto) {
         return jpaQueryFactory
             .select(new QSearchDeliveryManagerResponse(
                 deliveryManager.id,
@@ -113,7 +115,8 @@ public class DeliveryManagerRepositoryCustomImpl implements DeliveryManagerRepos
             .join(userSummary).on(deliveryManager.userId.eq(userSummary.id))
             .where(
                 keywordContains(requestDto.keyword()),
-                typeEquals(requestDto.hubType())
+                typeEquals(requestDto.hubType()),
+                filterByRole(requestDto.authRole(), requestDto.hubId())
             )
             .orderBy(getOrderConditions(requestDto.pageable().getSort()))
             .offset(requestDto.pageable().getOffset())
@@ -121,11 +124,11 @@ public class DeliveryManagerRepositoryCustomImpl implements DeliveryManagerRepos
             .fetch();
     }
 
-    private int getTotalPages(long totalElement, SearchDeliveryManagerRequestDto requestDto) {
+    private int getTotalPages(long totalElement, SearchDeliveryManagerDto requestDto) {
         return (int) Math.ceil((double) totalElement / requestDto.pageable().getPageSize());
     }
 
-    private long getTotalElement(SearchDeliveryManagerRequestDto requestDto) {
+    private long getTotalElement(SearchDeliveryManagerDto requestDto) {
         return Optional.ofNullable(
                 jpaQueryFactory
                     .select(deliveryManager.count())
@@ -134,7 +137,8 @@ public class DeliveryManagerRepositoryCustomImpl implements DeliveryManagerRepos
                     .join(userSummary).on(deliveryManager.userId.eq(userSummary.id))
                     .where(
                         keywordContains(requestDto.keyword()),
-                        typeEquals(requestDto.hubType())
+                        typeEquals(requestDto.hubType()),
+                        filterByRole(requestDto.authRole(), requestDto.hubId())
                     )
                     .fetchOne())
             .orElse(0L);
@@ -165,5 +169,15 @@ public class DeliveryManagerRepositoryCustomImpl implements DeliveryManagerRepos
 
     private BooleanExpression typeEquals(String hubType) {
         return hubType != null ? hubSummary.type.eq(hubType) : null;
+    }
+
+    private BooleanExpression filterByRole(AuthRole authRole, UUID hubId) {
+        if (authRole == AuthRole.MASTER) {
+            return null;
+        }
+        if (authRole == AuthRole.HUB_MANAGER && hubId != null) {
+            return deliveryManager.hubId.eq(hubId);
+        }
+        return Expressions.FALSE;
     }
 }

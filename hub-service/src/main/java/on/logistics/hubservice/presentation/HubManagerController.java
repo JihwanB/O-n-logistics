@@ -12,6 +12,7 @@ import on.logistics.hubservice.global.presentation.dtos.CommonResponse;
 import on.logistics.hubservice.presentation.dtos.request.CreateHubManagerRequest;
 import on.logistics.hubservice.presentation.dtos.request.ValidHubManagerRequest;
 import on.logistics.hubservice.presentation.dtos.response.CreateHubManagerResponse;
+import on.logistics.hubservice.presentation.dtos.response.GetHubIdByUserIdResponseDto;
 import on.logistics.hubservice.presentation.dtos.response.ValidHubManagerResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,13 @@ public class HubManagerController {
         @PathVariable UUID hubId
     ) {
         final var responseDto = hubManagerService.getHubManagerId(hubId);
+        return ResponseEntity.ok(CommonResponse.success(responseDto));
+    }
+
+    @GetMapping("/userId/{userId}")
+    public ResponseEntity<CommonResponse<GetHubIdByUserIdResponseDto>> getHubIdByUserId(
+        @PathVariable UUID userId) {
+        final var responseDto = hubManagerService.getHubIdByUserId(userId);
         return ResponseEntity.ok(CommonResponse.success(responseDto));
     }
 }
