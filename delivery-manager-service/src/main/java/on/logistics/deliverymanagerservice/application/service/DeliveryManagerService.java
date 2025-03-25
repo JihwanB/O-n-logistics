@@ -14,6 +14,7 @@ import on.logistics.deliverymanagerservice.domain.entity.DeliveryManager;
 import on.logistics.deliverymanagerservice.domain.entity.DeliveryType;
 import on.logistics.deliverymanagerservice.domain.entity.UserSummary;
 import on.logistics.deliverymanagerservice.domain.entity.dtos.CreateDeliveryManagerDto;
+import on.logistics.deliverymanagerservice.domain.entity.dtos.SearchDeliveryManagerDto;
 import on.logistics.deliverymanagerservice.domain.entity.repository.DeliveryAssignmentRepository;
 import on.logistics.deliverymanagerservice.domain.entity.repository.DeliveryManagerRepository;
 import on.logistics.deliverymanagerservice.domain.entity.repository.UserSummaryRepository;
@@ -23,6 +24,7 @@ import on.logistics.deliverymanagerservice.global.application.dtos.PageDto;
 import on.logistics.deliverymanagerservice.global.domain.Passport;
 import on.logistics.deliverymanagerservice.global.enums.AuthRole;
 import on.logistics.deliverymanagerservice.global.util.PassportUtil;
+import on.logistics.deliverymanagerservice.infrastructure.clients.hub.HubServiceClient;
 import on.logistics.deliverymanagerservice.infrastructure.clients.user.UserServiceClient;
 import on.logistics.deliverymanagerservice.infrastructure.clients.user.feign.dtos.response.GetUserInfoResponse;
 import on.logistics.deliverymanagerservice.presentation.dtos.response.AssignDeliveryManagerResponse;
@@ -42,6 +44,7 @@ public class DeliveryManagerService {
     private final DeliveryAssignmentRepository deliveryAssignmentRepository;
     private final UserSummaryRepository userSummaryRepository;
     private final UserServiceClient userServiceClient;
+    private final HubServiceClient hubServiceClient;
     private final PassportUtil passportUtil;
 
     @Transactional(readOnly = true)
@@ -71,8 +74,17 @@ public class DeliveryManagerService {
             throw new DeliveryManagerException(
                 DeliveryManagerExceptionCode.DELIVERY_MANAGER_NOT_FOUND);
         }
+
+        UUID hubId = null;
+        if (passport.getRole().equals(AuthRole.HUB_MANAGER)) {
+            hubId = UUID.fromString(
+                hubServiceClient.getHubIdByUserId(passport.getUserId()).hubId());
+        }
+
+        final var searchDeliveryManagerDto = SearchDeliveryManagerDto.of(requestDto,
+            AuthRole.valueOf(passport.getRole()), hubId);
         PageDto<SearchDeliveryManagerResponse> responsePageDto = deliveryManagerRepository.searchDeliveryManager(
-            requestDto);
+            searchDeliveryManagerDto);
         return responsePageDto;
     }
 
@@ -132,7 +144,7 @@ public class DeliveryManagerService {
         }
 
         DeliveryManager deliveryManager = findDeliveryManagerById(id);
-        deliveryManager.delete();
+        deliveryManagerRepository.delete(deliveryManager);
     }
 
     @Transactional

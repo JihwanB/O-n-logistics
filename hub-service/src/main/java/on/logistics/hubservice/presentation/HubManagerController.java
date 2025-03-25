@@ -1,5 +1,6 @@
 package on.logistics.hubservice.presentation;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import on.logistics.hubservice.global.presentation.dtos.CommonResponse;
 import on.logistics.hubservice.presentation.dtos.request.CreateHubManagerRequest;
 import on.logistics.hubservice.presentation.dtos.request.ValidHubManagerRequest;
 import on.logistics.hubservice.presentation.dtos.response.CreateHubManagerResponse;
+import on.logistics.hubservice.presentation.dtos.response.GetHubIdByUserIdResponseDto;
 import on.logistics.hubservice.presentation.dtos.response.ValidHubManagerResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +31,10 @@ public class HubManagerController {
 
     @PostMapping
     public ResponseEntity<CommonResponse<CreateHubManagerResponse>> createHubManager(
-        @RequestBody @Valid CreateHubManagerRequest createHubManagerRequest) {
-        final var requestDto = CreateHubManagerRequestDto.of(createHubManagerRequest);
+        @RequestBody @Valid CreateHubManagerRequest createHubManagerRequest,
+        HttpServletRequest passportRequest) {
+        final var requestDto = CreateHubManagerRequestDto.of(createHubManagerRequest,
+            passportRequest);
         final var responseDto = hubManagerService.createHubManager(requestDto);
         return ResponseEntity.ok(CommonResponse.success(responseDto));
     }
@@ -48,6 +52,13 @@ public class HubManagerController {
         @PathVariable UUID hubId
     ) {
         final var responseDto = hubManagerService.getHubManagerId(hubId);
+        return ResponseEntity.ok(CommonResponse.success(responseDto));
+    }
+
+    @GetMapping("/userId/{userId}")
+    public ResponseEntity<CommonResponse<GetHubIdByUserIdResponseDto>> getHubIdByUserId(
+        @PathVariable UUID userId) {
+        final var responseDto = hubManagerService.getHubIdByUserId(userId);
         return ResponseEntity.ok(CommonResponse.success(responseDto));
     }
 }
