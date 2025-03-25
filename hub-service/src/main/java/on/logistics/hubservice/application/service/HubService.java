@@ -23,10 +23,15 @@ import on.logistics.hubservice.presentation.dtos.response.GetHubResponse;
 import on.logistics.hubservice.presentation.dtos.response.GetSpokesLinkedToCenterResponse;
 import on.logistics.hubservice.presentation.dtos.response.SearchHubResponse;
 import on.logistics.hubservice.presentation.dtos.response.UpdateHubResponse;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@CacheConfig(cacheNames = "hub-service")
 @RequiredArgsConstructor
 public class HubService {
 
@@ -34,18 +39,21 @@ public class HubService {
     private final MapServiceClient mapServiceClient;
     private final PassportUtil passportUtil;
 
+    @Cacheable(value = "hub", key = "#id")
     @Transactional(readOnly = true)
     public GetHubResponse getHub(final UUID id) {
         Hub hub = findHubById(id);
         return GetHubResponse.of(hub);
     }
 
+    @Cacheable(value = "hubSearch", key = "#requestDto.hashCode()")
     @Transactional(readOnly = true)
     public PageDto<SearchHubResponse> searchHub(SearchHubRequestDto requestDto) {
         PageDto<SearchHubResponse> responsePageDto = hubRepository.searchHub(requestDto);
         return responsePageDto;
     }
 
+    @CacheEvict(value = "hubSearch", allEntries = true)
     @Transactional
     public CreateHubResponse createHub(CreateHubRequestDto requestDto) {
         Passport passport = getPassport(requestDto.passportRequest());
@@ -59,6 +67,10 @@ public class HubService {
         return CreateHubResponse.of(savedHub.getId());
     }
 
+    @Caching(
+        evict = {@CacheEvict(value = "hub", key = "#requestDto.id"),
+            @CacheEvict(value = "hubSearch", allEntries = true)}
+    )
     @Transactional
     public UpdateHubResponse updateHub(UpdateHubRequestDto requestDto) {
         Passport passport = getPassport(requestDto.passportRequest());
@@ -69,6 +81,11 @@ public class HubService {
         return UpdateHubResponse.of(hub);
     }
 
+    @Caching(
+        evict = {@CacheEvict(value = "hub", key = "#id"),
+            @CacheEvict(value = "hubSearch", allEntries = true)}
+    )
+    @CacheEvict(value = {"hub", "hubSearch"}, key = "#id")
     @Transactional
     public void deleteHub(final UUID id, HttpServletRequest passportRequest) {
         Passport passport = getPassport(passportRequest);
@@ -78,6 +95,7 @@ public class HubService {
         hub.delete();
     }
 
+    @Cacheable(value = "hubLinks", key = "#centerId")
     @Transactional(readOnly = true)
     public List<GetSpokesLinkedToCenterResponse> getSpokesLinkedToCenter(final UUID centerId) {
         Hub centerHub = findHubById(centerId);

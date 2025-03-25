@@ -34,6 +34,10 @@ import on.logistics.hubtransitservice.presentation.dtos.response.GetHubTransitRe
 import on.logistics.hubtransitservice.presentation.dtos.response.GetNextHubResponse;
 import on.logistics.hubtransitservice.presentation.dtos.response.SearchHubTransitResponse;
 import on.logistics.hubtransitservice.presentation.dtos.response.UpdateHubTransitResponse;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@CacheConfig(cacheNames = "hub-transit-service")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class HubTransitServiceImpl implements HubTransitService {
@@ -52,6 +57,7 @@ public class HubTransitServiceImpl implements HubTransitService {
     private final DeliveryManagerClient deliveryManagerClient;
     private final ObjectMapper objectMapper;
 
+    @CachePut(value = "hubTransit", key = "#result.transitId()")
     @Override
     @Transactional
     public CreateHubTransitResponse createHubTransit(CreateHubTransitRequestDto requestDto) {
@@ -159,6 +165,7 @@ public class HubTransitServiceImpl implements HubTransitService {
         log.info("허브 입고 요청 처리 완료, new transitId: {}", saved.getId());
     }
 
+    @Cacheable(value = "hubTransit", key = "#transitId", unless = "#result == null")
     @Override
     public GetHubTransitResponse getHubTransit(UUID transitId) {
         HubTransit hubTransit = getOrElseThrow(transitId);
@@ -180,6 +187,7 @@ public class HubTransitServiceImpl implements HubTransitService {
         return GetNextHubResponse.from(hubTransit);
     }
 
+    @CachePut(value = "hubTransit", key = "#result.transitId")
     @Override
     @Transactional
     public UpdateHubTransitResponse updateHubTransit(UpdateHubTransitRequestDto requestDto) {
@@ -190,6 +198,7 @@ public class HubTransitServiceImpl implements HubTransitService {
         return UpdateHubTransitResponse.from(hubTransit);
     }
 
+    @CacheEvict(value = "hubTransit", key = "#transitId")
     @Override
     @Transactional
     public void deleteHubTransit(UUID transitId) {

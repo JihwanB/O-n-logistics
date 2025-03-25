@@ -1,4 +1,4 @@
-package on.logistics.deliveryservice.presentation;
+package on.logistics.deliveryservice.presentation.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

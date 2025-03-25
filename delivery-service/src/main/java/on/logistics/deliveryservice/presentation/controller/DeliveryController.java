@@ -1,4 +1,4 @@
-package on.logistics.deliveryservice.presentation;
+package on.logistics.deliveryservice.presentation.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -51,7 +51,7 @@ public class DeliveryController {
         HttpServletRequest httpServletRequest) {
         final CreateDeliveryRequestDto requestDto = CreateDeliveryRequestDto.from(
             createDeliveryRequest, httpServletRequest);
-        CreateDeliveryResponse response = deliveryService.createApiDelivery(requestDto);
+        CreateDeliveryResponse response = deliveryService.createDelivery(requestDto);
         deliveryService.createHubTransitRouteRequest(response);
         return ResponseEntity.ok(CommonResponse.success(response));
     }

@@ -25,8 +25,13 @@ public interface DeliveryRecordService {
     UpdateDeliveryRecordStatusResponse updateStatusDeliveryRecord(
         UpdateDeliveryRecordStatusRequestDto requestDto);
 
+    UpdateDeliveryRecordStatusResponse updateStatusApiDeliveryRecord(
+        UpdateDeliveryRecordStatusRequestDto requestDto);
+
     GetDeliveryRecordResponse getDeliveryRecord(UUID id, HttpServletRequest httpServletRequest);
 
     PageDto<SearchDeliveryRecordResponse> searchDeliveryRecord(
         SearchDeliveryRecordRequestDto requestDto);
+
+    CreateDeliveryRecordResponse createApiDeliveryRecord(CreateDeliveryRecordRequestDto requestDto);
 }

@@ -62,6 +62,17 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
 
     @Override
     @Transactional
+    public CreateDeliveryRecordResponse createApiDeliveryRecord(
+        CreateDeliveryRecordRequestDto requestDto) {
+        Delivery delivery = deliveryService.getOrElseThrow(requestDto.deliveryId());
+        CreateDeliveryRecordDto createEntityDto = getCreateDeliveryRecordDto(requestDto);
+        DeliveryRecord saved = DeliveryRecord.create(createEntityDto, delivery);
+        deliveryRecordRepository.save(saved);
+        return CreateDeliveryRecordResponse.of(saved.getId());
+    }
+
+    @Override
+    @Transactional
     public UpdateDeliveryRecordResponse updateActualDeliveryRecord(
         UpdateDeliveryRecordRequestDto requestDto) {
         Passport passport = getPassport(requestDto.httpServletRequest());
@@ -89,6 +100,19 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
         validCompanyManager(passport);
         DeliveryRecord deliveryRecord = getOrElseThrow(requestDto.deliveryRecordId());
         validHubManagerHubAndDeliveryManager(passport, deliveryRecord);
+        if (deliveryRecord.getDelivery().getStatus() == DeliveryStatus.CANCEL) {
+            throw new DeliveryRecordException(
+                DeliveryRecordExceptionCode.DELIVERY_RECORD_DELIVERY_STATUS_CANCEL);
+        }
+        deliveryRecord.updateStatus(requestDto.status());
+        return UpdateDeliveryRecordStatusResponse.of(deliveryRecord.getId());
+    }
+
+    @Override
+    @Transactional
+    public UpdateDeliveryRecordStatusResponse updateStatusApiDeliveryRecord(
+        UpdateDeliveryRecordStatusRequestDto requestDto) {
+        DeliveryRecord deliveryRecord = getOrElseThrow(requestDto.deliveryRecordId());
         if (deliveryRecord.getDelivery().getStatus() == DeliveryStatus.CANCEL) {
             throw new DeliveryRecordException(
                 DeliveryRecordExceptionCode.DELIVERY_RECORD_DELIVERY_STATUS_CANCEL);

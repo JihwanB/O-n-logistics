@@ -10,4 +10,6 @@ public interface HubManagerJpaRepository extends JpaRepository<HubManager, UUID>
     Optional<HubManager> findByUserIdAndHubId(UUID userId, UUID hubId);
 
     Optional<HubManager> findByHubId(UUID hubId);
+
+    Optional<HubManager> findByUserId(UUID userId);
 }

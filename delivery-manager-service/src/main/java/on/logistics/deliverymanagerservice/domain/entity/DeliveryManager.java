@@ -11,15 +11,21 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import on.logistics.deliverymanagerservice.domain.entity.dtos.CreateDeliveryManagerDto;
 import on.logistics.deliverymanagerservice.global.domain.BaseEntity;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE p_delivery_manager SET is_deleted = true WHERE id = ?")
 @Table(name = "p_delivery_manager")
 public class DeliveryManager extends BaseEntity {
 
@@ -64,10 +70,6 @@ public class DeliveryManager extends BaseEntity {
     public void update(DeliveryType type, int sequence) {
         this.type = type;
         this.sequence = sequence;
-    }
-
-    public void delete() {
-        deleteSoftly();
     }
 
     public void updateLastAssignedAt(LocalDateTime assignedAt) {
