@@ -34,7 +34,7 @@ public class SlackMessageServiceImpl implements SlackMessageService {
         try {
             slackUtil.sendMessageToUser(requestDto);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SlackException(SlackExceptionCode.MESSAGE_SEND_FAILED);
         }
         CreateSlackMessageDto dto = SlackMessageRequestDto.from(requestDto);
         Slack slack = Slack.create(dto);

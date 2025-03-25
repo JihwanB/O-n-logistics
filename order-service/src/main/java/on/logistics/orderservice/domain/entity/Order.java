@@ -86,7 +86,15 @@ public class Order extends BaseEntity {
     }
 
     public void addDependencies(Orderer orderer, List<VendorOrder> vendorOrders) {
+        addOrdererDependency(orderer);
+        addVendorOrdersDependencies(vendorOrders);
+    }
+
+    public void addOrdererDependency(Orderer orderer) {
         this.orderer = orderer;
+    }
+
+    public void addVendorOrdersDependencies(List<VendorOrder> vendorOrders) {
         this.vendorOrders = vendorOrders;
     }
 

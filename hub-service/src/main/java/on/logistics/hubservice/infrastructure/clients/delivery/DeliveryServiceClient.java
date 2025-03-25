@@ -11,5 +11,5 @@ public interface DeliveryServiceClient {
     void updateDeliveryStatus(UUID id);
 
     GetDeliveryRecordPageResponse getDeliveryRecordId(@RequestParam String deliveryId,
-        @RequestParam String endHubId);
+        @RequestParam String startHubId);
 }

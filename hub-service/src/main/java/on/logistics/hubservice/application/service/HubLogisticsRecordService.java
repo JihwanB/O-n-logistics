@@ -37,7 +37,7 @@ public class HubLogisticsRecordService {
             final var record = HubLogisticsRecord.storage(requestDto.hubId(), id);
             records.add(record);
 
-            final var nextHubTransitRequest = NextHubTransitRequest.of(requestDto.hubId(), id);
+            final var nextHubTransitRequest = NextHubTransitRequest.of(id, requestDto.hubId());
             hubTransitServiceClient.requestNextHubTransit(nextHubTransitRequest);
         });
         hubLogisticsRecordRepository.saveAll(records);

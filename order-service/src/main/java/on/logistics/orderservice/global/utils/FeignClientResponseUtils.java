@@ -2,6 +2,7 @@ package on.logistics.orderservice.global.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.Response;
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +19,7 @@ import on.logistics.orderservice.infrastructure.clients.exception.ExternalApiExc
 @Slf4j
 public class FeignClientResponseUtils {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public static <T> T getBody(Response response, Class<T> responseType) {
         validateResponseStatus(response);

@@ -55,3 +55,13 @@ jasypt:
 #  datasource:
 #    p6spy:
 #      enable-logging: true
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true
+    path: /api-docs-hub-transit-service

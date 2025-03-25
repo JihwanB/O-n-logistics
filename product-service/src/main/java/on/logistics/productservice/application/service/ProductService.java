@@ -32,4 +32,7 @@ public interface ProductService {
 
     UpdateIncreaseProductQuantityResponse updateIncreaseProductQuantity(
         UpdateIncreaseProductQuantityRequestDto requestDto);
+
+    UpdateReduceProductQuantityResponse updateApiReduceProductQuantity(
+        UpdateReduceProductQuantityRequestDto requestDto);
 }

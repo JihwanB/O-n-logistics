@@ -71,13 +71,22 @@ public class SecurityConfig {
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .requestMatchers(
-                    "/", "/api/v1/auth/signup", "/api/v1/auth/login"
-                )
-                .permitAll()
-                .requestMatchers("/actuator/prometheus", "/actuator/health", "/actuator/info")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                    "/",
+                    "/api/v1/auth/signup",
+                    "/api/v1/auth/login"
+                ).permitAll()
+                .requestMatchers(
+                    "/actuator/prometheus",
+                    "/actuator/health",
+                    "/actuator/info"
+                ).permitAll()
+                .requestMatchers(
+                    "/docs/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**").permitAll()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthentiactionFilter(), UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);

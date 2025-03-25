@@ -3,6 +3,7 @@ package on.logistics.hubtransitservice.application;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,14 @@ public class HubTransitServiceImpl implements HubTransitService {
     public CreateHubTransitResponse createHubTransit(CreateHubTransitRequestDto requestDto) {
         log.info("허브 이동정보 생성 요청");
 
+        Optional<HubTransit> existingTransit = hubTransitRepository
+            .findByDeliveryId(requestDto.deliveryId());
+        if (existingTransit.isPresent()) {
+            log.info("이미 존재하는 허브 이동정보로 인해 추가적으로 생성하지 않고 기존 레코드 반환, deliveryId: {}",
+                requestDto.deliveryId());
+            return CreateHubTransitResponseDto.from(existingTransit.get());
+        }
+
         var startHub = getHubInfo(requestDto.startHubId());
         var endHub = getHubInfo(requestDto.endHubId());
 
@@ -100,6 +109,15 @@ public class HubTransitServiceImpl implements HubTransitService {
     ) {
         log.info("허브 입고 요청, deliveryId: {}, currentHubId: {}", requestDto.deliveryId(),
             requestDto.currentHubId());
+
+        Optional<HubTransit> existingTransit = hubTransitRepository
+            .findByDeliveryIdAndNextHubId(requestDto.deliveryId(), requestDto.currentHubId());
+        if (existingTransit.isPresent()) {
+            log.info("이미 처리된 허브 입고 요청, deliveryId: {}, currentHubId: {}",
+                requestDto.deliveryId(), requestDto.currentHubId()
+            );
+            return;
+        }
 
         HubTransit currentTransit = hubTransitRepository
             .findByDeliveryIdAndNextHubId(requestDto.deliveryId(), requestDto.currentHubId())

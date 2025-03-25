@@ -18,5 +18,5 @@ public interface DeliveryServiceFeignClient {
         @RequestBody UpdateDeliveryStatusRequest request);
 
     @GetMapping("/api/v1/delivery/record/search")
-    Response getDeliveryRecordId(@RequestParam String deliveryId, @RequestParam String endHubId);
+    Response getDeliveryRecordId(@RequestParam String deliveryId, @RequestParam String startHubId);
 }

@@ -35,3 +35,13 @@ eureka:
 user:
   unauthorized:
     uri: /api/v1/users
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true
+    path: /api-docs-user-service

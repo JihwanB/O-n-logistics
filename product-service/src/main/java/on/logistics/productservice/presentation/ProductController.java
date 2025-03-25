@@ -90,7 +90,7 @@ public class ProductController {
         HttpServletRequest httpServletRequest) {
         UpdateReduceProductQuantityRequestDto requestDto = UpdateReduceProductQuantityRequestDto.from(
             id, updateReduceProductQuantityRequest, httpServletRequest);
-        UpdateReduceProductQuantityResponse response = productService.updateReduceProductQuantity(
+        UpdateReduceProductQuantityResponse response = productService.updateApiReduceProductQuantity(
             requestDto);
         return ResponseEntity.ok(CommonResponse.success(response));
     }

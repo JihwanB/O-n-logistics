@@ -7,7 +7,7 @@ public record GetDeliveryRecordResponse(
     String deliveryRecordStatus,
     String deliveryRecordStartHubId,
     String deliveryRecordEndHubId,
-    String deliveryManagerId
+    String userId
 ) {
 
 }

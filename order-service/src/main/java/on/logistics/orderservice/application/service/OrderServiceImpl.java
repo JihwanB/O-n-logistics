@@ -88,10 +88,11 @@ public class OrderServiceImpl implements OrderService {
         Order createdOrder = Order.create(createOrderDto);
 
         Orderer orderer = createOrderer(createdOrder, requestDto);
+        createdOrder.addOrdererDependency(orderer);
+
         List<VendorOrder> vendorOrders = createVendorOrders(
             createdOrder, requestDto.ordersByVendor());
-
-        createdOrder.addDependencies(orderer, vendorOrders);
+        createdOrder.addVendorOrdersDependencies(vendorOrders);
 
         log.info("생성된 주문 저장: {}", createdOrder);
         Order savedOrder = orderRepository.save(createdOrder);
@@ -295,12 +296,23 @@ public class OrderServiceImpl implements OrderService {
         Order order = vendorOrder.getOrder();
         Orderer orderer = order.getOrderer();
         Vendor vendor = vendorOrder.getVendor();
+        StringBuilder sb = new StringBuilder();
+        vendorOrder.getOrderProducts()
+            .forEach(product -> {
+                sb
+                    .append("\n\t<<")
+                    .append(product.getName().getValue())
+                    .append(">> 상품이 ")
+                    .append(product.getQuantity().getValue())
+                    .append("개 주문되었습니다.");
+            });
+        String productString = sb.toString();
         return "주문 번호 : " + vendorOrder.getId() + "\n"
-            + "주문자 정보 : " + orderer.getUserNickname()
-            + " / " + orderer.getCompanyName() + "\n"
-            + "상품 정보 : 마른 오징어 50박스\n"
+            + "주문자 정보 : " + orderer.getUserNickname().getValue()
+            + " / " + orderer.getCompanyName().getValue() + "\n"
+            + "상품 정보 : " + productString + "\n"
             + "배송 기한 : " + vendorOrder.getArrivalDeadline() + "\n"
-            + "발송지 : " + vendor.getVendorHubName() + "\n"
+            + "발송지 : " + vendor.getVendorHubName().getValue() + "\n"
             + "도착지 : " + order.getDestination() + "\n"
             + "\n"
             + "위 내용을 기반으로 도출된 최종 발송 시한은 "

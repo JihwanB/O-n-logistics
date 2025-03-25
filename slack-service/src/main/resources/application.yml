@@ -57,3 +57,13 @@ decorator:
 slack:
   bot:
     token: ENC(pqr1VA8FBLiRBMdw7Os7iAVBZflghKYMUb5thi9PcPfkRvumW1ewb1Q8Bc5FPwAzp7j6qpDdbrzMvYOcKZKXSkVcSykRG54k)
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true
+    path: /api-docs-slack-service

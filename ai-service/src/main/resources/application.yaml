@@ -11,3 +11,11 @@ eureka:
 
 openai:
   api-key: ENC(qpFXm3KVXfBeDA51vBarN5JsJiqNt21VsS6ZTm7V6wgqSyB7Zh/X5VCq6VmpGHB4O6X3feC5MEftEuxsJWdpS6u/IaKpby6DruJpstwAQKTa7P+FP917RiyFrK36jXn/kVYSq2NSK3oiLaBrIEvme+WWS3b9LUYOXGy2OhD5DQpUVBl8KjJ89GAPq1fKCiTqZZCVBrURGEvoQI5pb+zYYufjCbJgSFwpjzzdK68d9jQ=)
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

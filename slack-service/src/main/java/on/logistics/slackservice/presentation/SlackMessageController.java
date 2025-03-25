@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import on.logistics.slackservice.application.SlackMessageService;
 import on.logistics.slackservice.exception.SlackException;
 import on.logistics.slackservice.exception.SlackExceptionCode;
+import on.logistics.slackservice.global.domain.Passport;
 import on.logistics.slackservice.global.presentation.dtos.CommonResponse;
 import on.logistics.slackservice.global.utils.PassportUtil;
 import on.logistics.slackservice.presentation.dtos.ReadSlackMessageResponse;
@@ -39,9 +40,8 @@ public class SlackMessageController {
         @Valid @RequestBody SlackMessageRequest request,
         HttpServletRequest servletRequest
     ) {
-        String role = passportUtil.getPassportByHttpServletRequest(servletRequest).getRole();
-        if (!("MASTER".equals(role) || "HUB_MANAGER".equals(role)
-            || "DELIVERY_MANAGER".equals(role) || "COMPANY_MANAGER".equals(role))) {
+        Passport passport = passportUtil.getPassportByHttpServletRequest(servletRequest);
+        if (passport == null) {
             throw new SlackException(SlackExceptionCode.UNAUTHORIZED);
         }
         final var requestDto = SlackMessageRequest.from(request);
@@ -53,8 +53,8 @@ public class SlackMessageController {
     public ResponseEntity<CommonResponse<ReadSlackMessageResponse>> getMessage(
         @PathVariable UUID id, HttpServletRequest servletRequest
     ) {
-        String role = passportUtil.getPassportByHttpServletRequest(servletRequest).getRole();
-        if (!"MASTER".equals(role)) {
+        Passport passport = passportUtil.getPassportByHttpServletRequest(servletRequest);
+        if (passport == null) {
             throw new SlackException(SlackExceptionCode.UNAUTHORIZED);
         }
         final var responseDto = slackMessageService.getSlackMessage(id);
@@ -66,8 +66,8 @@ public class SlackMessageController {
         @PathVariable UUID id, @RequestBody UpdateSlackMessageRequest request,
         HttpServletRequest servletRequest
     ) {
-        String role = passportUtil.getPassportByHttpServletRequest(servletRequest).getRole();
-        if (!"MASTER".equals(role)) {
+        Passport passport = passportUtil.getPassportByHttpServletRequest(servletRequest);
+        if (passport == null) {
             throw new SlackException(SlackExceptionCode.UNAUTHORIZED);
         }
         log.info("update message request: {}", request.message());
@@ -80,8 +80,8 @@ public class SlackMessageController {
     public ResponseEntity<CommonResponse<Void>> deleteMessage(
         @PathVariable UUID id, HttpServletRequest servletRequest
     ) {
-        String role = passportUtil.getPassportByHttpServletRequest(servletRequest).getRole();
-        if (!"MASTER".equals(role)) {
+        Passport passport = passportUtil.getPassportByHttpServletRequest(servletRequest);
+        if (passport == null) {
             throw new SlackException(SlackExceptionCode.UNAUTHORIZED);
         }
         slackMessageService.deleteMessage(id);

@@ -49,15 +49,23 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
         log.info("Auth Requested Ip address: {}, {}", ipAddress, path);
 
-        log.info("Request Data, {}", exchange.getApplicationContext());
-        log.info("Request Data, {}", exchange.getAttributes());
-        log.info("Request Data, {}", exchange.getRequest().getHeaders());
-        log.info("Request Data, {}", exchange.getRequest().getQueryParams());
-        log.info("Request Data, {}", exchange.getRequest().getBody());
-        log.info("Request Data, {}", exchange.getResponse());
-
-
-        if (path.equals(loginUrl) || path.equals(signupUrl)) {
+        if (
+            path.equals(loginUrl)  ||
+            path.equals(signupUrl)  ||
+            path.startsWith("/api-docs-user-service") ||
+            path.startsWith("/api-docs-hub-service") ||
+            path.startsWith("/api-docs-company-service") ||
+            path.startsWith("/api-docs-product-service") ||
+            path.startsWith("/api-docs-order-service") ||
+            path.startsWith("/api-docs-delivery-service") ||
+            path.startsWith("/api-docs-slack-ai-service") ||
+            path.startsWith("/swagger-ui") ||
+            path.startsWith("/v3/api-docs") ||
+            path.startsWith("/api-docs") ||
+            path.contains("swagger") ||
+            path.contains("api-docs") ||
+            path.contains("spring-doc")
+        ) {
             return chain.filter(exchange);
         }
 

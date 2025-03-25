@@ -5,7 +5,7 @@ CREATE TYPE auth_role_enum AS ENUM (
     'MASTER',           -- 마스터
     'DELIVERY_MANAGER', -- 배송 담당자
     'HUB_MANAGER',      -- 허브 담당자
-    'STORE_MANAGER'     -- 업체 담당자
+    'COMPANY_MANAGER'     -- 업체 담당자
 );
 
 -- 인증 테이블

@@ -9,7 +9,7 @@ public record UpdateDeliveryStatusRequest(
 
     public static UpdateDeliveryStatusRequest of() {
         return UpdateDeliveryStatusRequest.builder()
-            .deliveryRecordStatus("HUB_ARRIVE")
+            .deliveryRecordStatus("HUB_MOVING")
             .build();
     }
 }

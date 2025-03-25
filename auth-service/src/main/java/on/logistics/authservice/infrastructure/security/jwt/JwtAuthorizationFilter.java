@@ -56,7 +56,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             path.equals("/api/v1/auth/login") ||
             (path.equals("/api/v1/auth/my") && method.equals("DELETE")) ||
             path.equals("/actuator/prometheus") ||
-            path.startsWith("/internal");
+            path.startsWith("/internal") ||
+            path.startsWith("/api-docs-user-service") ||
+            path.startsWith("/api-docs-hub-service") ||
+            path.startsWith("/api-docs-company-service") ||
+            path.startsWith("/api-docs-product-service") ||
+            path.startsWith("/api-docs-order-service") ||
+            path.startsWith("/api-docs-delivery-service") ||
+            path.startsWith("/api-docs-slack-ai-service") ||
+            path.startsWith("/swagger-ui") ||
+            path.startsWith("/v3/api-docs") ||
+            path.startsWith("/api-docs") ||
+            path.contains("swagger") ||
+            path.contains("api-docs") ||
+            path.contains("spring-doc")
+            ;
     }
 
     @Override

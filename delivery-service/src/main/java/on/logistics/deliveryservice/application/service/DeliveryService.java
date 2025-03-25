@@ -53,5 +53,6 @@ public interface DeliveryService {
 
     CreateDeliveryResponse createApiDelivery(CreateDeliveryRequestDto requestDto);
 
-
+    void rollbackDeleteDelivery(UUID id);
+    void createHubTransitRouteRequest(CreateDeliveryResponse response);
 }

@@ -21,6 +21,7 @@ import on.logistics.deliveryservice.global.application.dtos.PageDto;
 import on.logistics.deliveryservice.global.domain.Passport;
 import on.logistics.deliveryservice.global.enums.AuthRole;
 import on.logistics.deliveryservice.global.utils.PassportUtil;
+import on.logistics.deliveryservice.infrastructure.clients.exception.ExternalApiException;
 import on.logistics.deliveryservice.infrastructure.clients.hub.HubServiceClient;
 import on.logistics.deliveryservice.infrastructure.clients.hub.feign.dtos.GetHubInfo;
 import on.logistics.deliveryservice.infrastructure.clients.hub.feign.dtos.GetHubManagerBooleanResponse;
@@ -78,8 +79,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         CreateDeliveryDto entityRequestDto = CreateDeliveryDto.from(requestDto, hubInfo, userInfo);
         Delivery saved = Delivery.create(entityRequestDto);
         deliveryRepository.save(saved);
-        // todo : 비동기 고민
-        createHubTransitRouteRequest(requestDto, hubInfo, saved);
         return CreateDeliveryResponse.of(saved.getId());
     }
 
@@ -98,8 +97,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         CreateDeliveryDto entityRequestDto = CreateDeliveryDto.from(requestDto, hubInfo, userInfo);
         Delivery saved = Delivery.create(entityRequestDto);
         deliveryRepository.save(saved);
-        // todo : 비동기 고민
-        createHubTransitRouteRequest(requestDto, hubInfo, saved);
         return CreateDeliveryResponse.of(saved.getId());
     }
 
@@ -310,11 +307,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         return end;
     }
 
-    private void createHubTransitRouteRequest(CreateDeliveryRequestDto requestDto,
-        DeliveryHubInfoDto hubInfo, Delivery saved) {
+    @Override
+    public void createHubTransitRouteRequest(CreateDeliveryResponse response) {
+        Delivery delivery = getOrElseThrow(response.deliveryId());
         CreateHubTransitRouteRequest createHubTransitRouteRequest = CreateHubTransitRouteRequest.of(
-            requestDto.startHubId(), hubInfo.endHubId(), saved.getId());
-        hubTransitServiceClient.createHubTransitRoute(createHubTransitRouteRequest);
+            delivery.getStartHubId(), delivery.getEndHubId(), delivery.getId());
+        try {
+            hubTransitServiceClient.createHubTransitRoute(createHubTransitRouteRequest);
+        } catch (Exception e) {
+            delivery.deleteSoftly();
+            throw new DeliveryException(DeliveryExceptionCode.DELIVERY_HUB_TRANSIT_ERROR);
+        }
     }
 
     public Delivery getOrElseThrow(UUID deliveryId) {
@@ -369,6 +372,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         HubManagerBooleanRequest hubManagerBooleanRequest = HubManagerBooleanRequest.of(
             passport.getUserId(), hubId);
         return hubServiceClient.getHubManagerBoolean(hubManagerBooleanRequest);
+    }
+
+    @Transactional
+    public void rollbackDeleteDelivery(UUID deliveryId) {
+        log.info("Delivery 롤백 요청");
+        Delivery delivery = getOrElseThrow(deliveryId);
+        deliveryRepository.delete(delivery);
     }
 
 }

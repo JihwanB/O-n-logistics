@@ -28,3 +28,13 @@ naver:
       key: ENC(1gy/3hWPPjt1tEtucbEelVgDBUpxp9yq)
       secret: ENC(9s2ooheLpz/mxl3ors7XCpzbSE28oZlabG/rSe3yQWrcJO66OI/WgON3ZfzufNH+RTiDWiFsms0=)
       url: ENC(POEhT1xpRsNza5reNnAI6tEPhAGVxW1GZQtWZyeiK5uqh234HKL2bFswiCcJAMhg)
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true
+    path: /api-docs-map-service

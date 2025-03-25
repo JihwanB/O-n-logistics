@@ -22,8 +22,8 @@ public class DeliveryServiceClientImpl implements DeliveryServiceClient {
     }
 
     @Override
-    public GetDeliveryRecordPageResponse getDeliveryRecordId(String deliveryId, String endHubId) {
-        Response response = deliveryServiceFeignClient.getDeliveryRecordId(deliveryId, endHubId);
+    public GetDeliveryRecordPageResponse getDeliveryRecordId(String deliveryId, String startHubId) {
+        Response response = deliveryServiceFeignClient.getDeliveryRecordId(deliveryId, startHubId);
         return FeignClientResponseUtils.getBody(response, GetDeliveryRecordPageResponse.class);
     }
 }

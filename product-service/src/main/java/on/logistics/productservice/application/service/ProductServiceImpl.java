@@ -132,6 +132,25 @@ public class ProductServiceImpl implements ProductService {
         return UpdateReduceProductQuantityResponse.of(product.getId());
     }
 
+    // 임시 재고 분리 킹 갓 <<윤한나>> 테크 리더님
+    @Override
+    @Transactional
+    public UpdateReduceProductQuantityResponse updateApiReduceProductQuantity(
+        UpdateReduceProductQuantityRequestDto requestDto) {
+        Passport passport = getPassport(requestDto.httpServletRequest());
+        validDeliveryManager(passport);
+        Product product = getOrElseThrow(requestDto.productId());
+        GetCompanyInfo companyInfo = companyServiceClient.getCompanyInfo(product.getCompanyId());
+
+        if (product.getQuantity().getValue() == 0) {
+            throw new ProductException(ProductExceptionCode.PRODUCT_QUANTITY_LIMIT);
+        }
+
+        product.updateReduceQuantity(requestDto.productQuantity());
+        return UpdateReduceProductQuantityResponse.of(product.getId());
+    }
+
+
     @Override
     @Transactional
     public UpdateIncreaseProductQuantityResponse updateIncreaseProductQuantity(

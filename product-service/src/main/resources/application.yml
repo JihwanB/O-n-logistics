@@ -27,3 +27,13 @@ eureka:
   client:
     service-url:
       defaultZone: ENC(gkE38Y61OB4CV6PuojhSMTX2dYfYlC5mfZVG+8PeUuueh+Rjc09sYw==)
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true
+    path: /api-docs-product-service

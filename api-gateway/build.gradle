@@ -54,6 +54,8 @@ dependencies {
 
 	// swagger API
 	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0'
+	implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.15.0'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0'
 }
 
 tasks.named('test') {
