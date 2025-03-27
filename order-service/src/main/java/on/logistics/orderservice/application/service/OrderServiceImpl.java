@@ -339,7 +339,7 @@ public class OrderServiceImpl implements OrderService {
     public GetOrderDetailResponseDto getOrderDetail(final GetOrderDetailRequestDto requestDto) {
         log.info("주문 상세 조회 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         validateGetOrderDetailAccess(requestDto, order);
@@ -384,7 +384,7 @@ public class OrderServiceImpl implements OrderService {
     public UpdateOrderResponseDto updateOrder(final UpdateOrderRequestDto requestDto) {
         log.info("주문 수정 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         validateUpdateOrderAccess(requestDto, order);
@@ -447,7 +447,7 @@ public class OrderServiceImpl implements OrderService {
     public CancelOrderResponseDto cancelVendorOrder(final CancelOrderRequestDto requestDto) {
         log.info("주문 취소 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsBeforeShippedVendorOrder(
@@ -483,7 +483,7 @@ public class OrderServiceImpl implements OrderService {
     public void deleteVendorOrder(final DeleteOrderRequestDto requestDto) {
         log.info("주문 삭제 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         validateDeleteVendorOrderAccess(requestDto, order);
@@ -506,7 +506,7 @@ public class OrderServiceImpl implements OrderService {
     public ReturnRequestResponseDto requestReturn(final ReturnRequestRequestDto requestDto) {
         log.info("반품 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsAfterDeliveredVendorOrder(
@@ -544,7 +544,7 @@ public class OrderServiceImpl implements OrderService {
     ) {
         log.info("반품 거부 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsReturnRequestedVendorOrder(
@@ -570,7 +570,7 @@ public class OrderServiceImpl implements OrderService {
     public ReturnOrderResponseDto returnOrder(final ReturnOrderRequestDto requestDto) {
         log.info("반품 완료 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsReturnRequestedVendorOrder(

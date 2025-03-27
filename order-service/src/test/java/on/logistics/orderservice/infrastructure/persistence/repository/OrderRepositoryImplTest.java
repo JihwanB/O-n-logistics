@@ -76,4 +76,17 @@ class OrderRepositoryImplTest {
         // then
         assertThat(orderOptional).isPresent();
     }
+
+
+    @Test
+    void findOrderByVendorOrderId() {
+        // given
+        UUID vendorOrderId = order.getVendorOrders().get(0).getId();
+
+        // when
+        Optional<Order> orderOptional = orderJpaRepository.findOrderByVendorOrderId(vendorOrderId);
+
+        // then
+        assertThat(orderOptional).isPresent();
+    }
 }

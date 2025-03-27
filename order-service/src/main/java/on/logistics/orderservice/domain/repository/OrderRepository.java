@@ -12,5 +12,5 @@ public interface OrderRepository {
 
     Page<Order> searchOrderPage(SearchOrderPageDto searchOrderPageDto);
 
-    Optional<Order> findOrderById(UUID orderId);
+    Optional<Order> findOrderByVendorOrderId(UUID vendorOrderId);
 }
