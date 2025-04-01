@@ -8,6 +8,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,30 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
         List<Order> companyList = searchOrderList(builder, searchOrderPageDto.pageable());
         Long total = totalCount(builder);
         return new PageImpl<>(companyList, searchOrderPageDto.pageable(), total);
+    }
+
+    @Override
+    public Optional<Order> findOrderByVendorOrderId(UUID vendorOrderId) {
+        BooleanBuilder builder = getVendorOrderQuery(vendorOrderId);
+        return findOrder(builder);
+    }
+
+    private BooleanBuilder getVendorOrderQuery(UUID vendorOrderId) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (vendorOrderId != null) {
+            builder.and(order.vendorOrders.any().id.eq(vendorOrderId));
+        }
+        return builder;
+    }
+
+    private Optional<Order> findOrder(BooleanBuilder builder) {
+        return Optional.ofNullable(queryFactory
+            .selectFrom(order)
+            .leftJoin(order.orderer).fetchJoin()
+            .leftJoin(order.vendorOrders, vendorOrder).fetchJoin()
+            .leftJoin(vendorOrder.vendor).fetchJoin()
+            .where(builder)
+            .fetchOne());
     }
 
     private BooleanBuilder getSearchOrderQuery(SearchOrderPageDto searchOrderPageDto) {

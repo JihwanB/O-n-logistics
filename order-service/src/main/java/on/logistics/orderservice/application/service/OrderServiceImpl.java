@@ -49,6 +49,7 @@ import on.logistics.orderservice.infrastructure.clients.ai.dtos.GenerateShipping
 import on.logistics.orderservice.infrastructure.clients.ai.feign.dtos.GenerateShippingDeadlineResponse;
 import on.logistics.orderservice.infrastructure.clients.company.dtos.GetCompanyResponseDto;
 import on.logistics.orderservice.infrastructure.clients.delivery.dtos.DeliveryRequestDto;
+import on.logistics.orderservice.infrastructure.clients.delivery.dtos.RollbackDeliveryRequestDto;
 import on.logistics.orderservice.infrastructure.clients.exception.ExternalApiException;
 import on.logistics.orderservice.infrastructure.clients.exception.ExternalApiException.ExternalApiBadRequestException;
 import on.logistics.orderservice.infrastructure.clients.hub.dtos.GetHubByIdResponseDto;
@@ -272,6 +273,7 @@ public class OrderServiceImpl implements OrderService {
 
     private void rollbackDeliveryRequests(VendorOrder vendorOrder) {
         log.info("배송 요청 롤백");
+        deliveryService.rollbackDeliveryRequest(RollbackDeliveryRequestDto.from(vendorOrder));
         log.warn("모든 상품에 대해서 재고 감소 롤백 요청이 발생하여 N+1 문제가 발생할 수 있습니다.");
         vendorOrder.getOrderProducts().forEach(this::rollbackDecreaseProductStock);
     }
@@ -298,14 +300,13 @@ public class OrderServiceImpl implements OrderService {
         Vendor vendor = vendorOrder.getVendor();
         StringBuilder sb = new StringBuilder();
         vendorOrder.getOrderProducts()
-            .forEach(product -> {
-                sb
-                    .append("\n\t<<")
-                    .append(product.getName().getValue())
-                    .append(">> 상품이 ")
-                    .append(product.getQuantity().getValue())
-                    .append("개 주문되었습니다.");
-            });
+            .forEach(product -> sb
+                .append("\n\t<<")
+                .append(product.getName().getValue())
+                .append(">> 상품이 ")
+                .append(product.getQuantity().getValue())
+                .append("개 주문되었습니다.")
+            );
         String productString = sb.toString();
         return "주문 번호 : " + vendorOrder.getId() + "\n"
             + "주문자 정보 : " + orderer.getUserNickname().getValue()
@@ -338,7 +339,7 @@ public class OrderServiceImpl implements OrderService {
     public GetOrderDetailResponseDto getOrderDetail(final GetOrderDetailRequestDto requestDto) {
         log.info("주문 상세 조회 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         validateGetOrderDetailAccess(requestDto, order);
@@ -383,7 +384,7 @@ public class OrderServiceImpl implements OrderService {
     public UpdateOrderResponseDto updateOrder(final UpdateOrderRequestDto requestDto) {
         log.info("주문 수정 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         validateUpdateOrderAccess(requestDto, order);
@@ -446,7 +447,7 @@ public class OrderServiceImpl implements OrderService {
     public CancelOrderResponseDto cancelVendorOrder(final CancelOrderRequestDto requestDto) {
         log.info("주문 취소 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsBeforeShippedVendorOrder(
@@ -482,7 +483,7 @@ public class OrderServiceImpl implements OrderService {
     public void deleteVendorOrder(final DeleteOrderRequestDto requestDto) {
         log.info("주문 삭제 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         validateDeleteVendorOrderAccess(requestDto, order);
@@ -505,7 +506,7 @@ public class OrderServiceImpl implements OrderService {
     public ReturnRequestResponseDto requestReturn(final ReturnRequestRequestDto requestDto) {
         log.info("반품 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsAfterDeliveredVendorOrder(
@@ -543,7 +544,7 @@ public class OrderServiceImpl implements OrderService {
     ) {
         log.info("반품 거부 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsReturnRequestedVendorOrder(
@@ -569,7 +570,7 @@ public class OrderServiceImpl implements OrderService {
     public ReturnOrderResponseDto returnOrder(final ReturnOrderRequestDto requestDto) {
         log.info("반품 완료 요청: {}", requestDto);
 
-        Order order = orderRepository.findOrderById(requestDto.orderId())
+        Order order = orderRepository.findOrderByVendorOrderId(requestDto.orderId())
             .orElseThrow(OrderNotFoundException::new);
 
         VendorOrder vendorOrder = getIsReturnRequestedVendorOrder(
@@ -607,4 +608,5 @@ public class OrderServiceImpl implements OrderService {
             .findFirst()
             .orElseThrow(VendorOrderNotFoundException::new);
     }
+
 }

@@ -29,9 +29,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Optional<Order> findOrderById(UUID orderId) {
-        log.warn("N+1 문제가 발생할 수 있습니다!");
-        return orderJpaRepository.findById(orderId);
+    public Optional<Order> findOrderByVendorOrderId(UUID vendorOrderId) {
+        return orderJpaRepository.findOrderByVendorOrderId(vendorOrderId);
     }
 
 }
